@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Glide Courier</title>
+    <link rel="stylesheet" href="design.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            padding-top: 100px;
+            min-height: 100vh;
+        }
+        .admin-hero {
+            text-align: center;
+            padding: 40px 20px;
+        }
+        .admin-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .admin-subtitle {
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 40px;
+        }
+        .admin-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px 80px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .stat-box {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .stat-box:hover {
+            transform: translateY(-5px);
+            border-color: rgba(99, 102, 241, 0.5);
+        }
+        .stat-box i {
+            font-size: 36px;
+            margin-bottom: 15px;
+        }
+        .stat-box .stat-num {
+            font-size: 36px;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 5px;
+        }
+        .stat-box .stat-label {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        .stat-box.blue i { color: #6366f1; }
+        .stat-box.blue .stat-num { background: linear-gradient(135deg, #6366f1, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .stat-box.green i { color: #10b981; }
+        .stat-box.green .stat-num { background: linear-gradient(135deg, #10b981, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .stat-box.yellow i { color: #f59e0b; }
+        .stat-box.yellow .stat-num { background: linear-gradient(135deg, #f59e0b, #ef4444); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .stat-box.red i { color: #ef4444; }
+        .stat-box.red .stat-num { background: linear-gradient(135deg, #ef4444, #ec4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+        .admin-section {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        .section-title {
+            font-size: 22px;
+            font-weight: 600;
+        }
+        .action-btn {
+            padding: 10px 20px;
+            background: var(--gradient-1);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.3s ease;
+        }
+        .action-btn:hover {
+            transform: scale(1.05);
+        }
+        .filter-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .filter-btn {
+            padding: 8px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50px;
+            color: white;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+        .filter-btn:hover, .filter-btn.active {
+            background: var(--gradient-1);
+            border-color: transparent;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .data-table th,
+        .data-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .data-table th {
+            font-size: 12px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+        .data-table td {
+            font-size: 14px;
+        }
+        .data-table tr:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .status-badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status-badge.pending { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+        .status-badge.approved { background: rgba(16, 185, 129, 0.2); color: #10b981; }
+        .status-badge.rejected { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .status-badge.in-transit { background: rgba(99, 102, 241, 0.2); color: #a78bfa; }
+        .status-badge.delivered { background: rgba(16, 185, 129, 0.3); color: #34d399; }
+        
+        .table-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .table-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        .table-btn.view { background: rgba(99, 102, 241, 0.2); color: #a78bfa; }
+        .table-btn.edit { background: rgba(245, 158, 11, 0.2); color: #f59e0b; }
+        .table-btn.delete { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+        .table-btn:hover { transform: scale(1.1); }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        .empty-state i {
+            font-size: 64px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.show {
+            display: flex;
+        }
+        .modal-content {
+            background: #0f172a;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+        .modal-title {
+            font-size: 22px;
+            font-weight: 600;
+        }
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        .detail-row {
+            display: flex;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .detail-label {
+            width: 140px;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 14px;
+        }
+        .detail-value {
+            flex: 1;
+            font-size: 14px;
+        }
+        .modal-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .modal-btn.approve { background: #10b981; color: white; }
+        .modal-btn.reject { background: #ef4444; color: white; }
+        .modal-btn:hover { transform: translateY(-2px); }
+
+        @media (max-width: 1024px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .admin-title { font-size: 32px; }
+            .data-table { display: block; overflow-x: auto; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="animated-bg">
+        <div class="floating-shape shape-1"></div>
+        <div class="floating-shape shape-2"></div>
+        <div class="floating-shape shape-3"></div>
+        <div class="floating-shape shape-4"></div>
+        <div class="floating-shape shape-5"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.htm" class="logo">
+                <span class="logo-icon"><i class="fas fa-cube"></i></span>
+                <span class="logo-text">GLIDE</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.htm">Home</a></li>
+                <li><a href="products.htm">Shipments</a></li>
+                <li><a href="add-product.htm">Add Product</a></li>
+                <li><a href="admin.htm" class="active">Admin</a></li>
+            </ul>
+            <div class="nav-btn">
+                <a href="index.htm#contact" class="btn-primary">Get Quote</a>
+            </div>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+    </nav>
+
+    <!-- Admin Hero -->
+    <section class="admin-hero">
+        <h1 class="admin-title gradient-text">Admin Dashboard</h1>
+        <p class="admin-subtitle">Manage all shipments and products</p>
+    </section>
+
+    <!-- Admin Container -->
+    <div class="admin-container">
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-box blue">
+                <i class="fas fa-box-open"></i>
+                <span class="stat-num" id="totalProducts">0</span>
+                <span class="stat-label">Total Shipments</span>
+            </div>
+            <div class="stat-box yellow">
+                <i class="fas fa-clock"></i>
+                <span class="stat-num" id="pendingProducts">0</span>
+                <span class="stat-label">Pending Approval</span>
+            </div>
+            <div class="stat-box green">
+                <i class="fas fa-truck"></i>
+                <span class="stat-num" id="transitProducts">0</span>
+                <span class="stat-label">In Transit</span>
+            </div>
+            <div class="stat-box red">
+                <i class="fas fa-check-circle"></i>
+                <span class="stat-num" id="deliveredProducts">0</span>
+                <span class="stat-label">Delivered</span>
+            </div>
+
+        <!-- Shipments Table -->
+        <div class="admin-section">
+            <div class="section-header">
+                <h2 class="section-title"><i class="fas fa-list"></i> All Shipments</h2>
+                <button class="action-btn" onclick="refreshData()">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </div>
+
+            <div class="filter-row">
+                <button class="filter-btn active" onclick="filterTable('all')">All</button>
+                <button class="filter-btn" onclick="filterTable('pending')">Pending</button>
+                <button class="filter-btn" onclick="filterTable('approved')">Approved</button>
+                <button class="filter-btn" onclick="filterTable('in-transit')">In Transit</button>
+                <button class="filter-btn" onclick="filterTable('delivered')">Delivered</button>
+                <button class="filter-btn" onclick="filterTable('rejected')">Rejected</button>
+            </div>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Tracking ID</th>
+                        <th>Product Name</th>
+                        <th>Category</th>
+                        <th>Weight</th>
+                        <th>Value</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="productsTableBody">
+                    <!-- Data will be populated by JavaScript -->
+                </tbody>
+            </table>
+
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <i class="fas fa-inbox"></i>
+                <p>No shipments found</p>
+            </div>
+    </div>
+
+    <!-- View Modal -->
+    <div class="modal-overlay" id="viewModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Shipment Details</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="modalDetails">
+                <!-- Details will be populated -->
+            </div>
+            <div class="modal-actions">
+                <button class="modal-btn approve" onclick="updateStatus('approved')">
+                    <i class="fas fa-check"></i> Approve
+                </button>
+                <button class="modal-btn reject" onclick="updateStatus('rejected')">
+                    <i class="fas fa-times"></i> Reject
+                </button>
+            </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        // Sample data
+        let products = [];
+        let currentFilter = 'all';
+        let currentProductId = null;
+
+        // Initialize with sample data if no localStorage data
+        function initData() {
+            const stored = localStorage.getItem('userProducts');
+            if (stored) {
+                products = JSON.parse(stored);
+            } else {
+                // Add sample data
+                products = [
+                    { id: 'GLIDE001', name: 'Laptop Computer', category: 'Electronics', weight: '2.5', value: '$1,200', status: 'in-transit', date: '2024-01-15', sku: 'ELEC-001', serviceType: 'Express', packageType: 'Electronics', origin: 'New York, NY', destination: 'Los Angeles, CA', recipient: 'John Smith', phone: '+1 555-1234' },
+                    { id: 'GLIDE002', name: 'Business Documents', category: 'Documents', weight: '0.5', value: '$50', status: 'pending', date: '2024-01-16', sku: 'DOC-002', serviceType: 'Standard', packageType: 'Document', origin: 'Chicago, IL', destination: 'Miami, FL', recipient: 'Jane Doe', phone: '+1 555-5678' },
+                    { id: 'GLIDE003', name: 'Wedding Dress', category: 'Clothing', weight: '3.0', value: '$2,500', status: 'approved', date: '2024-01-14', sku: 'CLTH-003', serviceType: 'White Glove', packageType: 'Fragile', origin: 'Boston, MA', destination: 'Seattle, WA', recipient: 'Mary Johnson', phone: '+1 555-9012' },
+                    { id: 'GLIDE004', name: 'Fresh Fruits', category: 'Perishable', weight: '10.0', value: '$150', status: 'delivered', date: '2024-01-12', sku: 'FOOD-004', serviceType: 'Express', packageType: 'Food', origin: 'California', destination: 'Texas', recipient: 'Robert Brown', phone: '+1 555-3456' },
+                    { id: 'GLIDE005', name: 'Office Furniture', category: 'Furniture', weight: '50.0', value: '$800', status: 'rejected', date: '2024-01-10', sku: 'FURN-005', serviceType: 'Ground', packageType: 'Other', origin: 'Atlanta, GA', destination: 'Denver, CO', recipient: 'Sarah Wilson', phone: '+1 555-7890' },
+                    { id: 'GLIDE006', name: 'Medical Supplies', category: 'Healthcare', weight: '5.0', value: '$3,000', status: 'in-transit', date: '2024-01-15', sku: 'HLTH-006', serviceType: 'Express', packageType: 'Special', origin: 'Philadelphia, PA', destination: 'San Francisco, CA', recipient: 'Dr. Emily Chen', phone: '+1 555-2468' }
+                ];
+            }
+            renderTable();
+            updateStats();
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('productsTableBody');
+            const emptyState = document.getElementById('emptyState');
+            
+            let filtered = currentFilter === 'all' 
+                ? products 
+                : products.filter(p => p.status === currentFilter);
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            tbody.innerHTML = filtered.map(p => `
+                <tr>
+                    <td><strong>${p.id}</strong></td>
+                    <td>${p.name}</td>
+                    <td>${p.category}</td>
+                    <td>${p.weight} kg</td>
+                    <td>${p.value}</td>
+                    <td><span class="status-badge ${p.status}">${p.status.replace('-', ' ')}</span></td>
+                    <td>${p.date}</td>
+                    <td>
+                        <div class="table-actions">
+                            <button class="table-btn view" onclick="viewProduct('${p.id}')" title="View"><i class="fas fa-eye"></i></button>
+                            <button class="table-btn edit" onclick="editProduct('${p.id}')" title="Edit"><i class="fas fa-edit"></i></button>
+                            <button class="table-btn delete" onclick="deleteProduct('${p.id}')" title="Delete"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function updateStats() {
+            document.getElementById('totalProducts').textContent = products.length;
+            document.getElementById('pendingProducts').textContent = products.filter(p => p.status === 'pending').length;
+            document.getElementById('transitProducts').textContent = products.filter(p => p.status === 'in-transit').length;
+            document.getElementById('deliveredProducts').textContent = products.filter(p => p.status === 'delivered').length;
+        }
+
+        function filterTable(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            renderTable();
+        }
+
+        function viewProduct(id) {
+            currentProductId = id;
+            const product = products.find(p => p.id === id);
+            
+            const details = document.getElementById('modalDetails');
+            details.innerHTML = `
+                <div class="detail-row">
+                    <span class="detail-label">Tracking ID</span>
+                    <span class="detail-value"><strong>${product.id}</strong></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Product Name</span>
+                    <span class="detail-value">${product.name}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">SKU</span>
+                    <span class="detail-value">${product.sku}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Category</span>
+                    <span class="detail-value">${product.category}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Service Type</span>
+                    <span class="detail-value">${product.serviceType}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Weight</span>
+                    <span class="detail-value">${product.weight} kg</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Value</span>
+                    <span class="detail-value">${product.value}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Origin</span>
+                    <span class="detail-value">${product.origin}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Destination</span>
+                    <span class="detail-value">${product.destination}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Recipient</span>
+                    <span class="detail-value">${product.recipient}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Phone</span>
+                    <span class="detail-value">${product.phone}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Status</span>
+                    <span class="detail-value"><span class="status-badge ${product.status}">${product.status}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Date</span>
+                    <span class="detail-value">${product.date}</span>
+                </div>
+            `;
+            
+            document.getElementById('viewModal').classList.add('show');
+        }
+
+        function closeModal() {
+            document.getElementById('viewModal').classList.remove('show');
+            currentProductId = null;
+        }
+
+        function updateStatus(status) {
+            if (currentProductId) {
+                const product = products.find(p => p.id === currentProductId);
+                if (product) {
+                    product.status = status;
+                    renderTable();
+                    updateStats();
+                    closeModal();
+                }
+            }
+        }
+
+        function editProduct(id) {
+            alert('Edit functionality - ID: ' + id);
+        }
+
+        function deleteProduct(id) {
+            if (confirm('Are you sure you want to delete this shipment?')) {
+                products = products.filter(p => p.id !== id);
+                renderTable();
+                updateStats();
+            }
+        }
+
+        function refreshData() {
+            initData();
+        }
+
+        // Close modal on outside click
+        document.getElementById('viewModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Navbar scroll effect
+        $(window).scroll(function() {
+            if ($(this).scrollTop() > 100) {
+                $('.navbar').addClass('scrolled');
+            } else {
+                $('.navbar').removeClass('scrolled');
+            }
+        });
+
+        // Hamburger menu
+        $('.hamburger').on('click', function() {
+            $('.nav-links').toggleClass('active');
+            $(this).toggleClass('active');
+        });
+
+        // Initialize
+        $(document).ready(function() {
+            initData();
+        });
+    </script>
+</body>
+</html>
